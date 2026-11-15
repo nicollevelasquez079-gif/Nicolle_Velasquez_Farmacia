@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from modelos.usuario import Usuario
 from repositorios.usuario import UsuarioRepositorio
+from auth import crear_hash
 
 class UsuarioServicio:
 
@@ -9,22 +10,26 @@ class UsuarioServicio:
         return UsuarioRepositorio.listar(db)
 
     @staticmethod
-    def crear(db: Session, datos):
+    def _validar(datos):
         if not datos.username.strip():
             raise ValueError("El username es obligatorio")
-
         if not datos.password.strip():
             raise ValueError("La contraseña es obligatoria")
-
         if not datos.rol.strip():
             raise ValueError("El rol es obligatorio")
 
-        usuario = Usuario(
-            username=datos.username,
-            password_hash=datos.password,  
-            rol=datos.rol
-        )
+    @staticmethod
+    def crear(db: Session, datos):
+        UsuarioServicio._validar(datos)
 
+        if UsuarioRepositorio.obtener_por_username(db, datos.username.strip()):
+            raise ValueError("Ese nombre de usuario ya existe")
+
+        usuario = Usuario(
+            username=datos.username.strip(),
+            password_hash=crear_hash(datos.password),   # nunca se guarda la clave en texto plano
+            rol=datos.rol.strip()
+        )
         return UsuarioRepositorio.crear(db, usuario)
 
     @staticmethod
@@ -33,17 +38,15 @@ class UsuarioServicio:
         if not usuario:
             raise ValueError("Usuario no encontrado")
 
-        if not datos.username.strip():
-            raise ValueError("El username es obligatorio")
-        if not datos.password.strip():
-            raise ValueError("La contraseña es obligatoria")
-        if not datos.rol.strip():
-            raise ValueError("El rol es obligatorio")
+        UsuarioServicio._validar(datos)
 
-        usuario.username = datos.username
-        usuario.password_hash = datos.password
-        usuario.rol = datos.rol
+        otro = UsuarioRepositorio.obtener_por_username(db, datos.username.strip())
+        if otro and otro.id != usuario_id:
+            raise ValueError("Ese nombre de usuario ya existe")
 
+        usuario.username = datos.username.strip()
+        usuario.password_hash = crear_hash(datos.password)
+        usuario.rol = datos.rol.strip()
         return UsuarioRepositorio.actualizar(db, usuario)
 
     @staticmethod

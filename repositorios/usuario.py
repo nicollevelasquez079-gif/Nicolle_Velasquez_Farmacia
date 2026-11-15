@@ -9,15 +9,11 @@ class UsuarioRepositorio:
 
     @staticmethod
     def obtener_por_id(db: Session, usuario_id: int):
-        return db.query(Usuario).filter(
-            Usuario.id == usuario_id
-        ).first()
+        return db.query(Usuario).filter(Usuario.id == usuario_id).first()
 
     @staticmethod
-    def obtener_por_correo(db: Session, correo: str):
-        return db.query(Usuario).filter(
-            Usuario.correo == correo
-        ).first()
+    def obtener_por_username(db: Session, username: str):
+        return db.query(Usuario).filter(Usuario.username == username).first()
 
     @staticmethod
     def crear(db: Session, usuario: Usuario):

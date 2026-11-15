@@ -14,6 +14,12 @@ def listar(db: Session = Depends(get_db)):
     return CategoriaServicio.listar(db)
 
 
+# REPORTE: valor del inventario por categoría (reto propio)
+@router.get("/reporte/valor-inventario")
+def valor_inventario(db: Session = Depends(get_db)):
+    return CategoriaServicio.valor_inventario(db)
+
+
 # CREAR CATEGORÍA
 @router.post("/", response_model=esquemas.Categoria)
 def crear(cat: esquemas.CategoriaCreate, db: Session = Depends(get_db)):

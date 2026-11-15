@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from servicios.detalleventa import DetalleVentaServicio
 import esquemas
+from auth import solo_admin
 
 router = APIRouter()
 
@@ -18,7 +19,7 @@ def listar_por_venta(venta_id: int, db: Session = Depends(get_db)):
 
 # CREAR DETALLE
 @router.post("/")
-def crear(detalle: esquemas.DetalleVentaCreate, db: Session = Depends(get_db)):
+def crear(detalle: esquemas.DetalleVentaCreate, db: Session = Depends(get_db), admin=Depends(solo_admin)):
     try:
         return DetalleVentaServicio.crear(db, detalle)
     except ValueError as error:
@@ -29,7 +30,8 @@ def crear(detalle: esquemas.DetalleVentaCreate, db: Session = Depends(get_db)):
 def actualizar(
     detalle_id: int,
     detalle: esquemas.DetalleVentaCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    admin=Depends(solo_admin)
 ):
     try:
         return DetalleVentaServicio.actualizar(db, detalle_id, detalle)
@@ -39,7 +41,7 @@ def actualizar(
 
 # ELIMINAR DETALLE
 @router.delete("/{detalle_id}")
-def eliminar(detalle_id: int, db: Session = Depends(get_db)):
+def eliminar(detalle_id: int, db: Session = Depends(get_db), admin=Depends(solo_admin)):
     try:
         DetalleVentaServicio.eliminar(db, detalle_id)
         return {"mensaje": "DetalleVenta eliminado correctamente"}

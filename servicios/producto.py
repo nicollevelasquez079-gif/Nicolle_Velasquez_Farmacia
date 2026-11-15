@@ -1,10 +1,25 @@
+from datetime import date
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from modelos.producto import Producto
+from modelos.lote import Lote
 from repositorios.producto import ProductoRepositorio
 from repositorios.categoria import CategoriaRepositorio
 
 
 class ProductoServicio:
+
+    @staticmethod
+    def sincronizar_stock(db: Session, producto_id: int):
+        """Deja productos.stock igual a la suma de los lotes vigentes (no vencidos).
+        No hace commit: lo hace quien llama, para que todo sea una sola transacción."""
+        total = db.query(func.coalesce(func.sum(Lote.cantidad), 0)).filter(
+            Lote.producto_id == producto_id,
+            Lote.fecha_vencimiento >= date.today()
+        ).scalar()
+        producto = db.get(Producto, producto_id)
+        if producto:
+            producto.stock = int(total or 0)
 
     @staticmethod
     def listar(db: Session):

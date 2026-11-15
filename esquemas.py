@@ -1,29 +1,30 @@
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from typing import Optional, List
 from datetime import date, datetime
+
+
+class ORMModel(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
 
 # --- CATEGORIA ---
 class CategoriaCreate(BaseModel):
     nombre: str
     descripcion: Optional[str] = None
 
-class Categoria(CategoriaCreate):
+class Categoria(CategoriaCreate, ORMModel):
     id: int
-    class Config:
-        from_attributes = True
 
 # --- PRODUCTO ---
 class ProductoCreate(BaseModel):
     nombre: str
     categoria_id: int
-    precio: float
-    stock: int
+    precio: float = Field(ge=0)
+    stock: int = Field(default=0, ge=0)   # referencia: se sincroniza con los lotes vigentes
     requiere_receta: bool = False
 
-class Producto(ProductoCreate):
+class Producto(ProductoCreate, ORMModel):
     id: int
-    class Config:
-        from_attributes = True
 
 # --- CLIENTE ---
 class ClienteCreate(BaseModel):
@@ -31,10 +32,8 @@ class ClienteCreate(BaseModel):
     telefono: str
     identidad: str
 
-class Cliente(ClienteCreate):
+class Cliente(ClienteCreate, ORMModel):
     id: int
-    class Config:
-        from_attributes = True
 
 # --- PROVEEDOR ---
 class ProveedorCreate(BaseModel):
@@ -43,10 +42,8 @@ class ProveedorCreate(BaseModel):
     contacto: str
     telefono: Optional[str] = None
 
-class Proveedor(ProveedorCreate):
+class Proveedor(ProveedorCreate, ORMModel):
     id: int
-    class Config:
-        from_attributes = True
 
 # --- USUARIO ---
 class UsuarioCreate(BaseModel):
@@ -54,46 +51,49 @@ class UsuarioCreate(BaseModel):
     password: str
     rol: str = "empleado"
 
-class Usuario(UsuarioCreate):
+class UsuarioOut(ORMModel):
+    """Lo que se devuelve al cliente: nunca incluye la contraseña ni su hash."""
     id: int
-    class Config:
-        from_attributes = True
+    username: str
+    rol: str
 
-# --- DETALLE QUE VIENE DENTRO DE LA VENTA (FIFO) ---
+Usuario = UsuarioOut
+
+# --- DETALLE QUE VIENE DENTRO DE LA VENTA ---
 class DetalleVentaEnVentaCreate(BaseModel):
     producto_id: int
-    cantidad: int
-    precio_unitario: float
+    cantidad: int = Field(gt=0)
+    
+    precio_unitario: Optional[float] = None
 
 # --- VENTA ---
 class VentaCreate(BaseModel):
+    fecha: Optional[datetime] = None          
+    total: Optional[float] = None             
+    cliente_id: int
+    usuario_id: Optional[int] = None          
+    detalles: List[DetalleVentaEnVentaCreate] = []
+
+class Venta(ORMModel):
+    id: int
     fecha: datetime
     total: float
     cliente_id: int
     usuario_id: int
-    detalles: List[DetalleVentaEnVentaCreate] = []  # <-- ESTO FALTABA
-
-class Venta(VentaCreate):
-    id: int
 
     @field_serializer('fecha')
     def serializar_fecha(self, fecha: datetime):
-        return fecha.strftime("%Y-%m-%d %H:%M:%S")
+        return fecha.strftime("%Y-%m-%dT%H:%M:%S")
 
-    class Config:
-        from_attributes = True
-
-# --- DETALLE VENTA (para crear solo, por si lo usas aparte) ---
+# --- DETALLE VENTA (uso directo, solo administrador) ---
 class DetalleVentaCreate(BaseModel):
     venta_id: int
     lote_id: int
     cantidad: int
     precio_unitario: float
 
-class DetalleVenta(DetalleVentaCreate):
+class DetalleVenta(DetalleVentaCreate, ORMModel):
     id: int
-    class Config:
-        from_attributes = True
 
 # --- LOTE ---
 class LoteCreate(BaseModel):
@@ -104,7 +104,5 @@ class LoteCreate(BaseModel):
     cantidad: int
     precio_compra: float
 
-class Lote(LoteCreate):
+class Lote(LoteCreate, ORMModel):
     id: int
-    class Config:
-        from_attributes = True

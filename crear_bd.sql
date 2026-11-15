@@ -119,7 +119,7 @@ INSERT INTO productos
 ('Alcohol antiséptico', 4, 40.00, 45, FALSE);
 
 INSERT INTO proveedores
-(razon_social, RTN, contacto, telefono) VALUES
+(razon_social, ruc, contacto, telefono) VALUES
 ('Distribuidora Farmacéutica Central',
  '08011999123456', 'Carlos López', '98765432'),
 ('Medicamentos del Valle',

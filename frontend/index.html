@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema de Gestión de Farmacia</title>
+<link rel="stylesheet" href="/frontend/styles.css">
+</head>
+<body>
+
+<!-- LOGIN: lo primero que se ve -->
+<div id="login">
+  <form id="f">
+    <h2>🩺 Farmacia – Iniciar sesión</h2>
+    <input id="u" placeholder="Usuario" autocomplete="username" required>
+    <input id="c" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+    <div id="err"></div>
+    <button>Entrar</button>
+  </form>
+</div>
+
+<aside>
+  <div class="brand"><div class="logo">➕</div><b>Farmacia</b><small>Salud y Bienestar</small></div>
+  <nav>
+    <button data-v="inicio" class="on">🏠 Inicio</button>
+    <button data-v="productos">💊 Productos</button>
+    <button data-v="categorias">🗂️ Categorías</button>
+    <button data-v="proveedores">🚚 Proveedores</button>
+    <button data-v="clientes">👥 Clientes</button>
+    <button data-v="lotes">📅 Lotes y vencimientos</button>
+    <button data-v="ventas">🛒 Ventas</button>
+    <button data-v="usuarios">⚙️ Usuarios</button>
+  </nav>
+  <button class="out" id="logout">⎋ Cerrar sesión</button>
+</aside>
+
+<main>
+  <header>
+    <div><h1>Sistema de Gestión de Farmacia</h1><p>Control eficiente de inventario, ventas y medicamentos</p></div>
+    <div class="user"><div>Hola, <b id="nom">—</b><br><span class="tag" id="rol">—</span></div><i>👤</i></div>
+  </header>
+
+  <!-- INICIO (dashboard) -->
+  <div id="v-inicio">
+    <section class="welcome"><div class="logo">➕</div>
+      <div><h2>¡Bienvenido al sistema!</h2><p>Gestiona tu farmacia de manera fácil y segura.</p></div></section>
+
+    <section class="kpis">
+      <div class="kpi k1"><span>📦</span><p>Productos</p><b id="k1">–</b></div>
+      <div class="kpi k2"><span>👥</span><p>Clientes</p><b id="k2">–</b></div>
+      <div class="kpi k3"><span>🚚</span><p>Proveedores</p><b id="k3">–</b></div>
+      <div class="kpi k4"><span>🛒</span><p>Ventas hoy</p><b id="k4">–</b></div>
+      <div class="kpi k5"><span>💰</span><p>Total ventas hoy</p><b id="k5">–</b></div>
+      <div class="kpi k6"><span>⚠️</span><p>Lotes por vencer (≤ 30 días)</p><b id="k6">–</b></div>
+    </section>
+
+    <section class="row r2">
+      <div class="box"><h3>📊 Resumen de ventas · últimos 7 días</h3><div class="pad" id="chart"></div></div>
+      <div class="box"><h3>⭐ Productos más vendidos</h3><div class="pad"><ul class="top" id="top"></ul></div></div>
+    </section>
+
+    <section class="row r3">
+      <div class="box t"><h3>⚠️ Lotes por vencer</h3><div id="t-lotes"></div></div>
+      <div class="box t"><h3>📦 Inventario</h3><div id="t-inv"></div></div>
+      <div class="box t"><h3>🛒 Últimas ventas</h3><div id="t-ventas"></div></div>
+    </section>
+
+    <section class="quick">
+      <button data-v="productos"><span>💊</span>Registrar productos</button>
+      <button data-v="categorias"><span>🗂️</span>Gestionar categorías</button>
+      <button data-v="proveedores"><span>🚚</span>Gestionar proveedores</button>
+      <button data-v="clientes"><span>👥</span>Registrar clientes</button>
+      <button data-v="ventas"><span>🛒</span>Registrar ventas</button>
+      <button data-v="usuarios"><span>👤</span>Administrar usuarios</button>
+      <button data-v="lotes"><span>📅</span>Consultar lotes</button>
+    </section>
+  </div>
+
+  <!-- LISTADO GENERAL (productos, categorías, etc.) -->
+  <div id="v-gen" hidden>
+    <div class="box">
+      <div class="tb">
+        <h2 id="gt"></h2>
+        <div class="tools">
+          <input id="gq" type="search" placeholder="Buscar…">
+          <button class="btn" id="gnew"></button>
+        </div>
+      </div>
+      <div id="gb"></div>
+    </div>
+  </div>
+</main>
+
+<!-- VENTANA PARA CREAR / EDITAR -->
+<div id="modal" hidden>
+  <form id="mf">
+    <h3 id="mt"></h3>
+    <div id="mb"></div>
+    <div id="me"></div>
+    <div class="acts">
+      <button type="button" class="ghost" id="mc">Cancelar</button>
+      <button class="btn">Guardar</button>
+    </div>
+  </form>
+</div>
+<div id="toast"></div>
+
+<script src="/frontend/app.js"></script>
+</body>
+</html>
